@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="ns" default="kinova_arm"/>
+
+    <group ns="$(arg ns)">
+        <node name="kinova_joy_teleop" type="kinova_joy_teleop.py" pkg="kinova_joy_teleop" />
+    </group>
+
+</launch>
