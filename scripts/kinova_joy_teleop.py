@@ -17,7 +17,7 @@ def joy_listener():
     rospy.init_node("kinova_joy_teleop")
 
     # subscribe to joystick messages on topic "joy"
-    rospy.Subscriber("/joy", Joy, joy_cmd_callback, queue_size=1)
+    rospy.Subscriber("/joy_teleop/joy", Joy, joy_cmd_callback, queue_size=1)
 
     # keep node alive until stopped
     rospy.spin()
@@ -25,7 +25,7 @@ def joy_listener():
 def joy_cmd_callback(data):
 
     # start publisher
-    pub = rospy.Publisher("/my_gen3/in/cartesian_velocity", TwistCommand, queue_size=1)
+    pub = rospy.Publisher("in/cartesian_velocity", TwistCommand, queue_size=1)
 
     # create gripper command message
     cmd = TwistCommand()
@@ -39,7 +39,7 @@ def joy_cmd_callback(data):
         cmd.twist.angular_y = data.axes[0] * max_angular_speed
         cmd.twist.angular_z = data.axes[3] * max_angular_speed
         rospy.loginfo("angular velocities: {%f, %f, %f};", cmd.twist.angular_x, cmd.twist.angular_y, cmd.twist.angular_z)
-
+    
     # publish gripper command
     pub.publish(cmd)
 
