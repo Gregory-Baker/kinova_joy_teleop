@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <launch>
     <arg name="ns" default="kinova_arm"/>
+    <arg name="restricted_mode" default="false"/>
 
     <group ns="$(arg ns)">
-        <node name="kinova_joy_teleop" type="kinova_joy_teleop.py" pkg="kinova_joy_teleop" />
+        <node name="kinova_joy_teleop" type="kinova_joy_teleop.py" pkg="kinova_joy_teleop">
+            <param name="restricted_mode" value="$(arg restricted_mode)"/>
+        </node>
     </group>
 
 </launch>

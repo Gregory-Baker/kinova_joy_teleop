@@ -5,24 +5,29 @@ Node to convert joystick commands to kinova arm cartesian movements
 """
 
 import rospy
-from std_msgs.msg import Empty
 from sensor_msgs.msg import Joy
-from geometry_msgs.msg import Pose
-from kortex_driver.msg import TwistCommand, Finger
-from kortex_driver.srv import SendGripperCommand, SendGripperCommandRequest, GetMeasuredCartesianPose
+#from geometry_msgs.msg import Pose
+from kortex_driver.msg import TwistCommand, Finger, Empty, Pose
+from kortex_driver.srv import SendGripperCommand, SendGripperCommandRequest, GetMeasuredCartesianPose, GetMeasuredCartesianPoseResponse
 
 max_linear_speed = 0.1
 max_angular_speed = 0.4
 gripper_speed = 0.05
 
-cartesian_min_limit_x = 0.275
+cartesian_min_limit_x = 0.3
 
-restricted_mode = rospy.get_param("~restricted_mode", False)
+restricted_mode = False
+
 
 def joy_listener():
 
     # start node
     rospy.init_node("kinova_joy_teleop")
+
+    global restricted_mode
+    restricted_mode = rospy.get_param("~restricted_mode", False)
+
+    rospy.loginfo("restricted mode: " + str(restricted_mode))
 
     # subscribe to joystick messages on topic "joy"
     rospy.Subscriber("/joy_teleop/joy", Joy, joy_cmd_callback, queue_size=1)
@@ -37,16 +42,17 @@ def joy_cmd_callback(data):
 
     # create gripper command message
     cmd = TwistCommand()
-    if (restricted_mode and data.axes[5] < 0):
+    if (data.axes[5] < 0):
         pose_srv = rospy.ServiceProxy('base/get_measured_cartesian_pose', GetMeasuredCartesianPose)
         cmd.twist.linear_x = data.axes[1] * max_linear_speed
-        if (data.axes[1] < 0): 
+        if (restricted_mode and data.axes[1] < 0): 
             try:
-                pose = Pose()
+                pose = GetMeasuredCartesianPoseResponse()
                 pose = pose_srv(Empty())
+                #rospy.loginfo("Kinova x position: %f")
             except rospy.ServiceException as e:
                 rospy.loginfo("cartesian pose request failed")
-            if (pose.position.x < cartesian_min_limit_x):
+            if (pose.output.x < cartesian_min_limit_x):
                 cmd.twist.linear_x = 0
         cmd.twist.linear_y = data.axes[0] * max_linear_speed
         cmd.twist.linear_z = data.axes[4] * max_linear_speed
