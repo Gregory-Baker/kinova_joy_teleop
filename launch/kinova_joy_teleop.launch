@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="ns" default="kinova_arm"/>
+    <arg name="arm_ns" default="/kinova_arm"/>
+    <arg name="joy_topic" default = "/joy_teleop/joy"/>
     <arg name="restricted_mode" default="false"/>
 
-    <group ns="$(arg ns)">
-        <node name="kinova_joy_teleop" type="kinova_joy_teleop.py" pkg="kinova_joy_teleop">
-            <param name="restricted_mode" value="$(arg restricted_mode)"/>
-        </node>
-    </group>
+    <node name="kinova_joy_teleop" type="kinova_joy_teleop.py" pkg="kinova_joy_teleop">
+        <param name="restricted_mode" value="$(arg restricted_mode)"/>
+        <param name="arm_ns" value="$(arg arm_ns)"/>
+        <param name="joy_topic" value="$(arg joy_topic)"/>
+    </node>
 
 </launch>
