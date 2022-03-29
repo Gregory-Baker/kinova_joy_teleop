@@ -49,7 +49,7 @@ def joy_cmd_callback(data):
 
     # create gripper command message
     cmd = TwistCommand()
-    if (data.axes[5] < 0):
+    if ((data.axes[5] < 0 or data.buttons[5] == 1) and data.buttons[4] != 1):
         pose_srv = rospy.ServiceProxy(arm_ns + "/base/get_measured_cartesian_pose", GetMeasuredCartesianPose)
         cmd.twist.linear_x = data.axes[1] * max_linear_speed
         if (restricted_mode and data.axes[1] < 0): 
